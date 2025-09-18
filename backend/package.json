@@ -1,0 +1,20 @@
+{
+  "name": "harmonize",
+  "version": "1.0.0",
+  "description": "a music tester",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "keywords": [
+    "Halo"
+  ],
+  "author": "Aharshi0909",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "email-existence": "^0.1.6",
+    "express": "^5.1.0"
+  }
+}
