@@ -143,7 +143,7 @@ export default function Home({ onLogin, onSignup }) {
           <div className="hero-content">
             <h1 className="hero-title">
               <span className="animated-text">{animatedText}</span>
-              <span className="cursor">|</span>
+              <span className="cursor"></span>
             </h1>
             <p className="hero-subtitle">Professional audio analysis to take your music to the next level</p>
             <div className="hero-buttons">
