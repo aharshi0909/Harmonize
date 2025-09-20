@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { FaGuitar, FaMicrophone, FaSun, FaMoon, FaUpload, FaSpinner, FaYoutube, FaBars } from 'react-icons/fa'
+import { FaGuitar, FaMicrophone, FaSun, FaMoon, FaUpload, FaSpinner, FaYoutube, FaBars, FaUser, FaChartBar, FaUserCircle, FaHistory } from 'react-icons/fa'
 import { GiPianoKeys, GiViolin } from 'react-icons/gi'
 import axios from 'axios'
 import '../Styles/Main.css'
@@ -21,6 +21,7 @@ export default function Main({ user, setUser }) {
   const [userFile, setUserFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
+  const [showProfile, setShowProfile] = useState(false)
 
   const toggleDarkMode = useCallback(() => {
     setDarkMode((prev) => {
@@ -88,6 +89,11 @@ export default function Main({ user, setUser }) {
     console.log('Active instrument:', activeInstrument)
   }, [activeInstrument])
 
+  const handleProfileOption = (option: string) => {
+    console.log(`Selected ${option} from profile`)
+    setShowProfile(false)
+  }
+
   return (
     <div className="main-content">
       <header className="top-nav">
@@ -112,6 +118,41 @@ export default function Main({ user, setUser }) {
           >
             {darkMode ? <FaSun /> : <FaMoon />}
           </button>
+          <div className="profile-section">
+            <button
+              onClick={() => setShowProfile(!showProfile)}
+              className="icon-button profile-toggle"
+              aria-label="Toggle profile menu"
+              title="Profile menu"
+            >
+              <FaUser />
+            </button>
+            {showProfile && (
+              <div className="profile-dropdown">
+                <button
+                  className="profile-option"
+                  onClick={() => handleProfileOption('Stats')}
+                  aria-label="View stats"
+                >
+                  <FaChartBar /> Stats
+                </button>
+                <button
+                  className="profile-option"
+                  onClick={() => handleProfileOption('Accounts')}
+                  aria-label="Manage accounts"
+                >
+                  <FaUserCircle /> Accounts
+                </button>
+                <button
+                  className="profile-option"
+                  onClick={() => handleProfileOption('History')}
+                  aria-label="View history"
+                >
+                  <FaHistory /> History
+                </button>
+              </div>
+            )}
+          </div>
           <button
             onClick={() => setUser(null)}
             className="icon-button"
@@ -142,35 +183,50 @@ export default function Main({ user, setUser }) {
         </section>
         <section className="instrument-visualization">
           <div className="file-upload-area">
-            <div className="youtube-input-container">
-              <span className="youtube-icon"><FaYoutube /></span>
+            <div className="yt-input-wrapper">
+              <FaYoutube className="yt-icon" />
               <input
-                className="youtube-input"
+                type="text"
+                className="yt-input"
                 value={youtubeLink}
-                onChange={(e) => setYoutubeLink(e.target.value)}
-                placeholder="Enter YouTube URL"
-                aria-label="Enter YouTube URL"
+                onChange={(e) => {
+                  console.log('YouTube URL changed:', e.target.value)
+                  setYoutubeLink(e.target.value)
+                }}
+                onClick={(e) => {
+                  console.log('YouTube input clicked')
+                  e.currentTarget.focus()
+                }}
+                onFocus={() => console.log('YouTube input focused')}
+                onBlur={() => console.log('YouTube input blurred')}
+                onKeyDown={() => console.log('Key pressed in YouTube input')}
+                placeholder="Paste YouTube URL here"
+                aria-label="Paste YouTube URL"
               />
             </div>
-            <label className={`upload-btn${userFile ? ' has-file' : ''}`}>
-              <input
-                type="file"
-                accept=".wav,.mp3,.flac"
-                style={{ display: 'none' }}
-                onChange={handleFileUpload}
-                aria-label="Upload audio file"
-              />
-              <FaUpload /> <span>{userFile ? userFile.name : 'Upload Your WAV File'}</span>
-            </label>
-            <button
-              className="compare-btn"
-              onClick={handleCompare}
-              disabled={loading}
-              aria-busy={loading}
-              aria-label="Analyze and compare audio"
-            >
-              {loading ? <FaSpinner className="spinner" /> : 'Analyze & Compare'}
-            </button>
+            <div className="file-upload-wrapper">
+              <label className={`upload-btn${userFile ? ' has-file' : ''}`}>
+                <input
+                  type="file"
+                  accept=".wav,.mp3,.flac"
+                  style={{ display: 'none' }}
+                  onChange={handleFileUpload}
+                  aria-label="Upload audio file"
+                />
+                <FaUpload /> <span>{userFile ? userFile.name : 'Upload Your WAV File'}</span>
+              </label>
+            </div>
+            <div className="compare-btn-wrapper">
+              <button
+                className="compare-btn"
+                onClick={handleCompare}
+                disabled={loading}
+                aria-busy={loading}
+                aria-label="Analyze and compare audio"
+              >
+                {loading ? <FaSpinner className="spinner" /> : 'Analyze & Compare'}
+              </button>
+            </div>
           </div>
           {result && (
             <div className="comparison-results">

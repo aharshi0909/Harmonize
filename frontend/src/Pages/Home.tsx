@@ -11,7 +11,7 @@ import main from '../Assets/main.jpg'
 import '../Styles/Home.css'
 import Tilt from 'react-parallax-tilt'
 
-const instrumentData: Record<string, { title: string; description: string; image: string }> = {
+const instrumentData = {
   guitar: {
     title: "Guitar",
     description: "Analyze your chords, scales, and finger positioning with our advanced guitar tracking system. Perfect for both acoustic and electric players.",
@@ -34,18 +34,23 @@ const instrumentData: Record<string, { title: string; description: string; image
   }
 }
 
-export default function Home({ onLogin, onSignup }: { onLogin: () => void; onSignup: () => void }) {
-  const featuresSectionRef = useRef<HTMLDivElement>(null)
-  const authSectionRef = useRef<HTMLDivElement>(null)
+export default function Home({ onLogin, onSignup }) {
+  const featuresSectionRef = useRef(null)
+  const authSectionRef = useRef(null)
+  const instrumentsSectionRef = useRef(null)
   const [activeFeature, setActiveFeature] = useState(0)
   const [animatedText, setAnimatedText] = useState('')
-  const [selectedInstrument, setSelectedInstrument] = useState<string | null>(null)
+  const [selectedInstrument, setSelectedInstrument] = useState(null)
+  const [visitedSections, setVisitedSections] = useState({
+    features: false,
+    instruments: false,
+  })
   const phrases = ["your guitar skills", "piano mastery", "vocal range", "music production"]
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
   const [charIndex, setCharIndex] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
   const baseText = "Elevate "
-  const homeContainerRef = useRef<HTMLDivElement>(null)
+  const homeContainerRef = useRef(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -53,7 +58,6 @@ export default function Home({ onLogin, onSignup }: { onLogin: () => void; onSig
     }, 4000)
     return () => clearInterval(interval)
   }, [])
-
 
   useEffect(() => {
     const typeEffect = () => {
@@ -77,23 +81,52 @@ export default function Home({ onLogin, onSignup }: { onLogin: () => void; onSig
     return () => clearTimeout(timer)
   }, [charIndex, currentPhraseIndex, isDeleting])
 
-  const scrollToFeatures = () => {
-    featuresSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.5,
+    }
 
+    const observerCallback = (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (entry.target === featuresSectionRef.current && !visitedSections.features) {
+            setVisitedSections(prev => ({ ...prev, features: true }))
+          }
+          if (entry.target === instrumentsSectionRef.current && !visitedSections.instruments) {
+            setVisitedSections(prev => ({ ...prev, instruments: true }))
+          }
+        }
+      })
+    }
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions)
+
+    if (featuresSectionRef.current) observer.observe(featuresSectionRef.current)
+    if (instrumentsSectionRef.current) observer.observe(instrumentsSectionRef.current)
+
+    return () => {
+      if (featuresSectionRef.current) observer.unobserve(featuresSectionRef.current)
+      if (instrumentsSectionRef.current) observer.unobserve(instrumentsSectionRef.current)
+    }
+  }, [visitedSections])
+
+  const scrollToFeatures = () => {
+    featuresSectionRef.current.scrollIntoView({ behavior: 'smooth' })
     setTimeout(() => {
       window.scrollBy({ top: 50, behavior: 'smooth' })
     }, 800)
   }
 
   const scrollToAuth = () => {
-    authSectionRef.current?.scrollIntoView({ behavior: 'smooth' })
-
+    authSectionRef.current.scrollIntoView({ behavior: 'smooth' })
     setTimeout(() => {
       window.scrollBy({ top: 50, behavior: 'smooth' })
     }, 800)
   }
 
-  const handleInstrumentClick = (instrument: string) => {
+  const handleInstrumentClick = (instrument) => {
     setSelectedInstrument(instrument)
     document.body.style.overflow = 'hidden'
   }
@@ -105,12 +138,7 @@ export default function Home({ onLogin, onSignup }: { onLogin: () => void; onSig
 
   return (
     <div className="home-container" ref={homeContainerRef}>
-      <div className="custom-scrollbar">
-        <div className="custom-scrollbar-track"></div>
-        <div className="custom-scrollbar-thumb"></div>
-      </div>
-
-      <section className="hero-section" style={{ backgroundImage: `url(${main})` }}>
+      <section className="hero-section">
         <div className="hero-overlay">
           <div className="hero-content">
             <h1 className="hero-title">
@@ -130,7 +158,7 @@ export default function Home({ onLogin, onSignup }: { onLogin: () => void; onSig
         </div>
       </section>
 
-      <section ref={featuresSectionRef} className="features-section">
+      <section ref={featuresSectionRef} className={`features-section ${visitedSections.features ? 'visited' : ''}`}>
         <div className="section-header">
           <h2>Why Choose Our Platform</h2>
           <p>Advanced tools for musicians at every level</p>
@@ -175,7 +203,7 @@ export default function Home({ onLogin, onSignup }: { onLogin: () => void; onSig
         </button>
       </section>
 
-      <section className="instruments-section">
+      <section ref={instrumentsSectionRef} className={`instruments-section ${visitedSections.instruments ? 'visited' : ''}`}>
         <div className="section-header">
           <h2>Supported Instruments</h2>
           <p>We help you master your instrument of choice</p>
@@ -226,10 +254,10 @@ export default function Home({ onLogin, onSignup }: { onLogin: () => void; onSig
             <div className="auth-options">
               <div className="auth-card">
                 <h3>New to Harmonize?</h3>
-                  <button className="auth-button signup-button" onClick={onSignup}>
+                  <button className="auth-button" onClick={onSignup}>
                     Sign Up Free
                   </button>
-                <p>Free forever, no credit card needed</p>
+                <p>Free forever</p>
               </div>
 
               <div className="auth-divider">
@@ -238,7 +266,7 @@ export default function Home({ onLogin, onSignup }: { onLogin: () => void; onSig
 
               <div className="auth-card">
                 <h3>Existing User?</h3>
-                  <button className="auth-button login-button" onClick={onLogin}>
+                  <button className="auth-button" onClick={onLogin}>
                     Log In
                   </button>
                 <p>Continue your musical journey</p>
