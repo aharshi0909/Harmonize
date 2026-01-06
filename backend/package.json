@@ -1,0 +1,14 @@
+{
+  "name": "music-learning-backend",
+  "version": "1.0.0",
+  "description": "Music Learning Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "validator": "^13.15.26"
+  }
+}
